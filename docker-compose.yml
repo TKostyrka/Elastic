@@ -1,0 +1,58 @@
+version: '3.5'
+services:
+
+  es01:
+    image: elasticsearch:7.9.0
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+    volumes:
+      - ./data/data01:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  es02:
+    image: elasticsearch:7.9.0
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data/data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:7.9.0
+    container_name: kibana
+    volumes:
+      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    depends_on:  
+      - es01
+      - es02
+    networks:
+      - elastic
+
+networks:
+  elastic:
+    driver: bridge
