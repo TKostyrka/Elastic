@@ -53,6 +53,19 @@ services:
     networks:
       - elastic
 
+  filebeat:
+    image: elastic/filebeat:7.9.0
+    container_name: filebeat
+    user: root
+    depends_on:  
+      - es01
+      - es02
+    networks:
+      - elastic
+    volumes:
+      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./samples/logs:/usr/share/filebeat/samples
+
 networks:
   elastic:
     driver: bridge

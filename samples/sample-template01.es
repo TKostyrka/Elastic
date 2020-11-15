@@ -1,6 +1,4 @@
-GET _cat/indices
-GET _cat/templates
-
+// create a template
 PUT _index_template/sample-template
 {
   "index_patterns": ["sample-*"],
@@ -19,13 +17,16 @@ PUT _index_template/sample-template
     }
 }
 
+// verify
 GET _cat/templates
 GET _cat/templates/sample-template
 GET /_index_template/sample-template
 
+// create an index for which the template is used ("sample-*" pattern)
 PUT /sample-index02
 GET /sample-index02/_mappings
 
+// add document
 PUT /sample-index02/_doc/1
 {
   "name": "my first ES document",
@@ -35,6 +36,7 @@ PUT /sample-index02/_doc/1
 GET /sample-index02/_doc/1
 GET /sample-index02/_source/1
 
+// add document with a field that was not defined in the template
 PUT /sample-index02/_doc/2
 {
   "name": "my second ES document",
@@ -42,11 +44,13 @@ PUT /sample-index02/_doc/2
   "new_field": "check what happens in the mappings"
 }
 
+// verify
 GET /sample-index02/_doc/2
 GET /sample-index02/_source/2
 
+// check the updated index mappings
 GET /sample-index02/_mappings
 
-
+// drop template & index
 DELETE /sample-index02
 DELETE /_index_template/sample-template
